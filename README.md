@@ -1,38 +1,38 @@
-# create-svelte
+# Reproduce the issue
 
-Everything you need to build a Svelte project, powered by [`create-svelte`](https://github.com/sveltejs/kit/tree/main/packages/create-svelte).
+Run this command:
 
-## Creating a project
+    npm run test:cucumber
 
-If you're seeing this, you've probably already done this step. Congrats!
+which will show error lines like these:
 
-```bash
-# create a new project in the current directory
-npm create svelte@latest
+    Error [ERR_MODULE_NOT_FOUND]: Cannot find package '$app' imported from /issue/cucumber-sveltekit-repro/src/lib/mylib.mjs
+        at packageResolve (node:internal/modules/esm/resolve:854:9)
+        at moduleResolve (node:internal/modules/esm/resolve:927:18)
+        at defaultResolve (node:internal/modules/esm/resolve:1157:11)
+        at ModuleLoader.defaultResolve (node:internal/modules/esm/loader:383:12)
+        at ModuleLoader.resolve (node:internal/modules/esm/loader:352:25)
+        at ModuleLoader.getModuleJob (node:internal/modules/esm/loader:227:38)
+        at ModuleWrap.<anonymous> (node:internal/modules/esm/module_job:87:39)
+        at link (node:internal/modules/esm/module_job:86:36) {
+      code: 'ERR_MODULE_NOT_FOUND'
+    }
 
-# create a new project in my-app
-npm create svelte@latest my-app
-```
+# Observed issues
 
-## Developing
+The Cucumber file `features/hello.steps.mjs` can not resolve these paths that come from SvelteKit, like this line:
 
-Once you've created a project and installed dependencies with `npm install` (or `pnpm install` or `yarn`), start a development server:
+    import { showBrowser } from '$lib/mylib.mjs'`
 
-```bash
-npm run dev
+which fails showing this:
 
-# or start the server and open the app in a new browser tab
-npm run dev -- --open
-```
+    Error [ERR_MODULE_NOT_FOUND]: Cannot find package '$lib' imported from /issue/cucumber-sveltekit-repro/features/hello.steps.mjs
 
-## Building
+or like this other line:
 
-To create a production version of your app:
+    import { showBrowser } from '../src/lib/mylib.mjs'`
 
-```bash
-npm run build
-```
+which fails showing this, as showed above:
 
-You can preview the production build with `npm run preview`.
+    Error [ERR_MODULE_NOT_FOUND]: Cannot find package '$app' imported from /issue/cucumber-sveltekit-repro/src/lib/mylib.mjs
 
-> To deploy your app, you may need to install an [adapter](https://kit.svelte.dev/docs/adapters) for your target environment.
